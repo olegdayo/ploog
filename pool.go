@@ -7,25 +7,25 @@ import (
 
 type Task func() error
 
-type Pool struct {
+type Ploog struct {
 	tasks chan Task
 	maxGs uint
 }
 
-func New(maxSimultaniousTasks uint) *Pool {
-	return &Pool{
+func New(maxSimultaniousTasks uint) *Ploog {
+	return &Ploog{
 		tasks: make(chan Task),
 		maxGs: maxSimultaniousTasks,
 	}
 }
 
-func (p *Pool) AddTasks(tasks ...Task) {
+func (p *Ploog) AddTasks(tasks ...Task) {
 	for _, task := range tasks {
 		p.tasks <- task
 	}
 }
 
-func (p *Pool) FinishInput() {
+func (p *Ploog) FinishInput() {
 	close(p.tasks)
 }
 
@@ -42,7 +42,7 @@ func execute(task Task, wg *sync.WaitGroup, sema chan struct{}) {
 	}
 }
 
-func (p *Pool) Start() {
+func (p *Ploog) Start() {
 	wg := sync.WaitGroup{}
 	sema := make(chan struct{}, p.maxGs)
 	for task := range p.tasks {
