@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"time"
+
+	"github.com/olegdayo/ploog"
 )
 
 func main() {
@@ -12,13 +14,13 @@ func main() {
 		return nil
 	}
 
-	p := New(5)
+	p, tasksCh := ploog.New(5)
 
 	go func() {
 		for i := 0; i < 20; i++ {
-			p.AddTasks(task)
+			tasksCh <- task
 		}
-		p.FinishInput()
+		close(tasksCh)
 	}()
 
 	p.Start()

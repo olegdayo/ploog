@@ -1,4 +1,4 @@
-package main
+package ploog
 
 import (
 	"log/slog"
@@ -8,25 +8,16 @@ import (
 type Task func() error
 
 type Ploog struct {
-	tasks chan Task
+	tasks <-chan Task
 	maxGs uint
 }
 
-func New(maxSimultaniousTasks uint) *Ploog {
+func New(maxSimultaniousTasks uint) (*Ploog, chan<- Task) {
+	tasks := make(chan Task)
 	return &Ploog{
-		tasks: make(chan Task),
+		tasks: tasks,
 		maxGs: maxSimultaniousTasks,
-	}
-}
-
-func (p *Ploog) AddTasks(tasks ...Task) {
-	for _, task := range tasks {
-		p.tasks <- task
-	}
-}
-
-func (p *Ploog) FinishInput() {
-	close(p.tasks)
+	}, tasks
 }
 
 func execute(task Task, wg *sync.WaitGroup, sema chan struct{}) {
